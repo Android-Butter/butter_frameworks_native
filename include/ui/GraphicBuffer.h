@@ -64,10 +64,19 @@ public:
         USAGE_HW_2D             = GRALLOC_USAGE_HW_2D,
         USAGE_HW_COMPOSER       = GRALLOC_USAGE_HW_COMPOSER,
         USAGE_HW_VIDEO_ENCODER  = GRALLOC_USAGE_HW_VIDEO_ENCODER,
-        USAGE_HW_MASK           = GRALLOC_USAGE_HW_MASK
+        USAGE_HW_MASK           = GRALLOC_USAGE_HW_MASK,
+#ifdef EXYNOS4_ENHANCEMENTS
+        USAGE_HW_FIMC1          = GRALLOC_USAGE_HW_FIMC1
+#endif
     };
 
     GraphicBuffer();
+
+#ifdef QCOM_BSP
+    // creates buffer of bufferSize
+    GraphicBuffer(uint32_t w, uint32_t h,
+                  PixelFormat format, uint32_t usage, uint32_t bufferSize);
+#endif
 
     // creates w * h buffer
     GraphicBuffer(uint32_t w, uint32_t h, PixelFormat format, uint32_t usage);
@@ -94,6 +103,10 @@ public:
     status_t lock(uint32_t usage, void** vaddr);
     status_t lock(uint32_t usage, const Rect& rect, void** vaddr);
     status_t unlock();
+#ifdef QCOM_BSP
+    status_t perform(buffer_handle_t hnd, int operation,
+                     uint32_t w, uint32_t h, PixelFormat format);
+#endif
 
     ANativeWindowBuffer* getNativeBuffer() const;
     
@@ -130,9 +143,12 @@ private:
     GraphicBuffer& operator = (const GraphicBuffer& rhs);
     const GraphicBuffer& operator = (const GraphicBuffer& rhs) const;
 
-    status_t initSize(uint32_t w, uint32_t h, PixelFormat format, 
+    status_t initSize(uint32_t w, uint32_t h, PixelFormat format,
             uint32_t usage);
-
+#ifdef QCOM_BSP
+    status_t initSize(uint32_t w, uint32_t h, PixelFormat format,
+            uint32_t usage, uint32_t bufferSize);
+#endif
     void free_handle();
 
     // Flattenable interface
